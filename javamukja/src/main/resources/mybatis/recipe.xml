@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="spring.model.mapper.RecipeInter">
+	<select id="read" parameterType="int" resultType="RecipeDTO">
+		SELECT rno, id, title, content, viewcnt, 
+		rcnt, fname, category, rdate, category, time, portion, ingredient FROM recipe          
+		WHERE rno = #{rno}                                
+	</select>
+
+	<select id="imgRead" parameterType="int" resultType="Map">
+		SELECT * FROM                                                  
+		  (                                                            
+		     select                                                    
+		         lag(rno,2,0)     over (order by rno) pre_rno2,          
+		         lag(rno,1,0)     over (order by rno ) pre_rno1,         
+		         rno,                                                  
+		         lead(rno,1,0)    over (order by rno) nex_rno1,          
+		         lead(rno,2,0)    over (order by rno) nex_rno2,          
+		                                                                  
+		         lag(fname,2,0)  over (order by rno) pre_file2,          
+		         lag(fname,1,0)  over (order by rno ) pre_file1,         
+		         fname,                                                
+		         lead(fname,1,0) over (order by rno) nex_file1,          
+		         lead(fname,2,0) over (order by rno) nex_file2           
+		         from (                                                
+		              SELECT rno, fname                                
+		              FROM recipe                                     
+		              ORDER BY rno DESC                                
+		         )                                                     
+		  )                                                            
+		  WHERE rno = #{rno}                                                          
+	</select>
+
+	<select id="list" parameterType="Map" resultType="RecipeDTO">
+		select rno, id, title, viewcnt, rcnt, fname, category, rdate,  r                       
+		from(                                                                                      
+		    select rno, id, title, viewcnt, rcnt, fname, category, rdate, rownum r            
+		    from(                                                                              
+				select rno, id, title, viewcnt, rcnt, fname, category, to_char(rdate, 'yyyy-mm-dd') rdate
+			 	from recipe
+				<where>
+					<choose>
+						<when test="col=='id'">
+							id like '%'||#{word}||'%'
+						</when>
+						<when test="col=='title'">
+							title like '%'||#{word}||'%'
+						</when>
+						<when test="col=='content'">
+							content like '%'||#{word}||'%'
+						</when>
+						<when test="col=='title_content'">
+							title like '%'||#{word}||'%'
+							or
+							content like '%'||#{word}||'%'
+						</when>
+					</choose>				
+				</where>
+				order by rno desc
+			)
+		)
+		<![CDATA[
+		where r >= #{sno} and r <= #{eno}
+		]]>                       
+	</select>
+	<select id="total" parameterType="Map" resultType="int">
+		select count(*) from recipe
+		<where>
+			<choose>
+				<when test="col=='id'">
+					id like '%'||#{word}||'%'
+				</when>
+				<when test="col=='title'">
+					title like '%'||#{word}||'%'
+				</when>
+				<when test="col=='content'">
+					content like '%'||#{word}||'%'
+				</when>
+				<when test="col=='title_content'">
+					title like '%'||#{word}||'%'
+					or
+					content like '%'||#{word}||'%'
+				</when>
+			</choose>				
+		</where>
+	</select>
+	
+	<insert id="create" parameterType="RecipeDTO">
+		INSERT into recipe(rno, id, title, content, fname, category, time, portion, ingredient, rdate)
+		VALUES((SELECT nvl(max(rno),0)+1 as rno from recipe),#{id},#{title},#{content},#{fname},#{category},
+		#{time},#{portion},#{ingredient},sysdate)                       
+	</insert>
+	<update id="update" parameterType="RecipeDTO">
+		update recipe
+		set title = #{title}, content=#{content},
+		fname=#{fname},category=#{category},time=#{time},portion=#{portion},ingredient=#{ingredient}
+		where rno = #{rno}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE from recipe WHERE rno = #{rno}
+	</delete>
+	<update id="upViewcnt" parameterType="int">
+		update recipe set viewcnt = viewcnt + 1 
+		where rno = #{rno}
+	</update>
+	<update id="recom" parameterType="int">
+		update recipe set rcnt = rcnt + 1 
+		where rno = #{rno}
+	</update>
+</mapper>
+
+<!-- 블록설정 후 tab과 shift+tab -->

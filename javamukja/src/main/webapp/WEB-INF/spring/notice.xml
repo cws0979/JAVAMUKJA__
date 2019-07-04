@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE  tiles-definitions PUBLIC 
+    "-//Aapche Software Foundation//DTD Tiles Configuration 2.0//EN" 
+    "http://tiles.apache.org/dtds/tiles-config_2_0.dtd"> 
+
+<tiles-definitions> 
+      
+    <definition name="/notice/list" extends="main"> 
+        <put-attribute name="title" value="notice목록" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/notice/list.jsp" /> 
+    </definition>   
+    
+    
+    <definition name="/admin/create" extends="main"> 
+        <put-attribute name="title" value="notice등록" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/notice/createForm.jsp" /> 
+    </definition>   
+    
+    <definition name="/admin/update" extends="main"> 
+        <put-attribute name="title" value="notice 수정" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/notice/updateForm.jsp" /> 
+    </definition>  
+    
+    
+    <definition name="/admin/delete" extends="main"> 
+        <put-attribute name="title" value="notice삭제" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/notice/deleteForm.jsp" /> 
+    </definition>  
+    
+     <definition name="/notice/read" extends="main"> 
+        <put-attribute name="title" value="notice조회" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/notice/read.jsp" /> 
+    </definition>  
+      
+<!--       <definition name="/bbs/reply" extends="main">  -->
+<!--         <put-attribute name="title" value="bbs답변" ></put-attribute>  -->
+<!--         <put-attribute name="body" value="/WEB-INF/views/bbs/replyForm.jsp" />  -->
+<!--     </definition>     -->
+    
+  
+        
+           
+   
+</tiles-definitions> 

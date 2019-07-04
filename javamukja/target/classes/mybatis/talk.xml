@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="spring.model.mapper.TalkInter">
+
+	<select id="imgRead" parameterType="int" resultType="Map">
+		select * from
+		(
+		select
+		lag(tno,2,0) over (order by tno) pre_tno2,
+		lag(tno,1,0) over (order by tno) pre_tno1,
+		tno,
+		lead(tno,1,0) over (order by tno) nex_tno1,
+		lead(tno,2,0) over (order by tno) nex_tno2,
+		lag(fname,2) over (order by tno) pre_file2,
+		lag(fname,1) over (order by tno ) pre_file1,
+		fname,
+		lead(fname,0) over (order by tno) nex_file1,
+		lead(fname,2,0) over (order by tno) nex_file2
+		from (
+		select tno, fname
+		from talk
+		order by tno desc
+		)
+		)
+		where tno = #{tno}
+
+	</select>
+	<select id="read" parameterType="int" resultType="TalkDTO">
+		SELECT tno, id,
+		title, content, viewcnt,
+		rcnt, fname, hashtag, category, rdate FROM talk
+		WHERE tno = #{tno}
+	</select>
+
+	<select id="list" parameterType="Map" resultType="TalkDTO">
+		select tno, id, title, viewcnt, rcnt, fname, hashtag, category, rdate,
+		r
+		from(
+		select tno, id, title, viewcnt, rcnt, fname, hashtag, category, rdate,
+		rownum r
+		from(
+		select tno, id, title, viewcnt, rcnt, fname, hashtag, category, rdate
+		from talk
+
+		<where>
+			<choose>
+				<when test="col=='id'">
+					id like '%'||#{word}||'%'
+				</when>
+				<when test="col=='title'">
+					title like '%'||#{word}||'%'
+				</when>
+				<when test="col=='content'">
+					content like '%'||#{word}||'%'
+				</when>
+				<when test="col=='hashtag'">
+					hashtag like '%'||#{word}||'%'
+				</when>
+				<when test="col=='title_content'">
+					title like '%'||#{word}||'%'
+					or
+					content like '%'||#{word}||'%'
+				</when>
+			</choose>
+		</where>
+		order by rownum desc
+		)
+		)
+		<![CDATA[
+		where r >= #{sno} and r <= #{eno}
+		]]>
+	</select>
+	<select id="total" parameterType="Map" resultType="int">
+		select count(*)
+		from talk
+		<where>
+			<choose>
+				<when test="col=='id'">
+					id like '%'||#{word}||'%'
+				</when>
+				<when test="col=='title'">
+					title like '%'||#{word}||'%'
+				</when>
+				<when test="col=='content'">
+					content like '%'||#{word}||'%'
+				</when>
+				<when test="col=='hashtag'">
+					hashtag like '%'||#{word}||'%'
+				</when>
+				<when test="col=='title_content'">
+					title like '%'||#{word}||'%'
+					or
+					content like '%'||#{word}||'%'
+				</when>
+			</choose>
+		</where>
+	</select>
+
+	<insert id="create" parameterType="TalkDTO">
+		insert into talk(tno, id, title, content, hashtag, fname, category,rdate)
+		values((select nvl(max(tno),0) + 1 as tno from talk),
+		#{id}, #{title}, #{content}, #{hashtag}, #{fname}, #{category}, sysdate)
+	</insert>
+	<update id="update" parameterType="TalkDTO">
+		update talk
+		set 
+			title=#{title},
+			fname=#{fname},
+			content=#{content},
+			hashtag =#{hashtag},
+			category=#{category}
+		where tno=#{tno}
+	</update>
+
+	<delete id="delete" parameterType="int">
+		DELETE
+		FROM talk
+		WHERE tno=#{tno}
+	</delete>
+
+	<select id="readReply" parameterType="int" resultType="TalkDTO">
+		SELECT
+		trno, id,tno,rdate, content
+		FROM talk
+		WHERE trno = #{trno}
+	</select>
+	<insert id="createReply" parameterType="TalkDTO">
+		insert into
+		talkreply(trno, id, tno, rdate, content)
+		values((select nvl(max(trno),0) + 1 as trno from talk),
+		#{id}, #{tno}, sysdate, #{content})
+	</insert>
+	<select id="passCheck" parameterType="Map" resultType="int">
+		select
+		count(tno) as cnt
+		from talk
+		where tno = #{tno}
+		and passwd = #{passwd}
+	</select>
+	<select id="refnumCheck" parameterType="int" resultType="int">
+		select
+		count(*) from talk where refnum = #{tno}
+	</select>
+	
+	
+	<update id="upViewcnt" parameterType="int">
+		update talk 
+		set viewcnt =
+		viewcnt + 1
+		where tno = #{tno}
+	</update>
+</mapper>
+
+<!-- 블록설정 후 tab과 shift+tab -->

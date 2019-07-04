@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="spring.model.mapper.TalkReplyInter">
+
+	<select id="rcount" parameterType="int" resultType="int">
+		SELECT count(*) FROM talkreply
+		WHERE tno = #{tno}
+	</select>
+	<insert id="create" parameterType="TalkReplyDTO">
+		<selectKey keyProperty="trno" resultType="int"
+			order="BEFORE">
+			select nvl(max(trno),0)+1 from talkreply
+		</selectKey>
+		insert into talkreply (trno,id, tno, rdate,content)
+		values(#{trno},#{id},#{tno},sysdate,#{content})
+	</insert>
+
+	<select id="read" parameterType="int" resultType="TalkReplyDTO">
+
+		select * from
+		talkreply
+		where trno = #{trno}
+	</select>
+
+	<update id="update" parameterType="TalkReplyDTO">
+		update talkreply
+		set content = #{content}
+		where trno = #{trno}
+
+	</update>
+
+	<delete id="delete" parameterType="int">
+		delete from talkreply
+		where trno =
+		#{trno}
+	</delete>
+	
+	<delete parameterType="int" id="tdelete"> 
+	delete from talkreply
+	 where tno = #{tno}
+	  </delete>
+
+	<select id="list" parameterType="Map" resultType="TalkReplyDTO">
+		select trno, id, tno, to_char(rdate,'yyyy-mm-dd') rdate, content, r
+		FROM(
+		select trno, id, tno, rdate, content, rownum r
+		FROM(
+		select trno, id, tno, rdate, content
+		from talkreply
+		where tno = #{tno}
+		order by trno DESC
+		)
+		)
+		<![CDATA[
+		WHERE r >= #{sno} and r <= #{eno}
+		]]>
+	</select>
+
+	<select id="total" resultType="int" parameterType="int">
+		select
+		count(*) from talkreply
+		where tno= #{tno}
+	</select>
+
+</mapper>

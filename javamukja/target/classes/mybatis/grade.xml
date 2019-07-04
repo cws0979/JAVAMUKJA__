@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="spring.model.mapper.GradeInter">
+
+	<select id="list" parameterType="Map" resultType="GradeDTO">
+		SELECT gno, id, title, content, rdate, r 
+		from(
+			SELECT gno, id, title, content, rdate, rownum r
+		 	from(
+		 		SELECT gno, id, title, content, to_char(rdate, 'yyyy-mm-dd') rdate
+				from grade
+		<where>
+				<choose>
+					<when test="col=='id'">
+						id like '%'||#{word}||'%'
+					</when>
+					
+					<when test="col=='title'">
+						title like '%'||#{word}||'%'
+					</when>
+					
+					<when test="col=='content'">
+						content like '%'||#{word}||'%'
+					</when>
+					
+					<when test="col=='title_content'">
+						title like '%'||#{word}||'%'
+						or
+						content like '%'||#{word}||'%'
+					</when>
+					
+				</choose>
+			</where>           
+		order by gno desc            
+		)
+		)
+		<![CDATA[
+		where r >= #{sno} and r <= #{eno}
+		]]>  
+	</select>
+
+	<insert id="create" parameterType="String" >
+		insert into grade(gno, id, title, content, rdate)
+		values((select nvl(max(gno),0) +1 from grade), #{id}, #{title}, #{content}, sysdate)
+	</insert>
+	
+
+	
+<select id="total" parameterType="Map" resultType="int">
+	select count(*) from grade
+		<where>
+				<choose>
+					<when test="col=='id'">
+						id like '%'||#{word}||'%'
+					</when>
+					
+					<when test="col=='title'">
+						title like '%'||#{word}||'%'
+					</when>
+					
+					<when test="col=='content'">
+						content like '%'||#{word}||'%'
+					</when>
+					
+					<when test="col=='title_content'">
+						title like '%'||#{word}||'%'
+						or
+						content like '%'||#{word}||'%'
+					</when>
+					
+				</choose>
+			</where>          
+	
+	</select>	
+	
+	
+	<select id="read" parameterType="int" resultType="GradeDTO">
+	select gno, id, title, content,
+	to_char(rdate, 'yyyy-mm-dd') rdate 
+	from grade                             
+	where gno = #{gno}                              
+	
+	</select>
+	
+	<update id="update" parameterType="GradeDTO">   
+	update grade   
+	set
+	title = #{title},    
+	content = #{content}   
+	where gno = #{gno}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+	delete from grade 
+ 	where gno = #{gno}
+	</delete>
+	
+	<select id="readReply" parameterType="int" resultType="GradeDTO">
+	select gno, id, title
+	from grade                               
+	where gno = #{gno}                        
+	</select>
+	
+<!-- 	<update id="upAnsnum" parameterType="Map"> -->
+<!-- 	update bbs   -->
+<!-- 	set ansnum = ansnum + 1  -->
+<!-- 	where grpno = #{grpno}      -->
+<!-- 	and ansnum > #{ansnum}   -->
+<!-- 	</update> -->
+	
+<!-- 	<insert id="createReply" parameterType="BbsDTO"> -->
+<!-- 	insert into grade(gno, id, title, content, passwd,  -->
+<!-- 	rdate)              -->
+<!-- 	values((select nvl(Max(gno),0)+1 as gno from grade), -->
+<!-- 	#{id}, #{title}, #{content}, #{passwd}, sysdate, -->
+<!-- 	#{grpno}, #{indent}+1, #{ansnum}+1, #{bbsno})                                   -->
+<!-- 	</insert> -->
+	
+<!-- 	<select id="passCheck" parameterType="Map" resultType="int"> -->
+<!-- 	select count(gno) as cnt -->
+<!--  	from grade -->
+<!--  	where gno = #{gno} -->
+<!-- 	</select> -->
+	
+<!-- 	<select id="refnumCheck" parameterType="int" resultType="int"> -->
+<!-- 	select count(*)  -->
+<!-- 	from bbs -->
+<!-- 	where refnum = #{bbsno} -->
+<!-- 	</select> -->
+	
+<!-- 	<update id="upViewcnt" parameterType="int"> -->
+<!-- 	update bbs -->
+<!-- 	set viewcnt = viewcnt + 1 -->
+<!-- 	where bbsno = #{bbsno}           -->
+<!-- 	</update> -->
+	
+	
+</mapper>

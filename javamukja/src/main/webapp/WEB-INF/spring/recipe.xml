@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE  tiles-definitions PUBLIC 
+    "-//Aapche Software Foundation//DTD Tiles Configuration 2.0//EN" 
+    "http://tiles.apache.org/dtds/tiles-config_2_0.dtd"> 
+
+<tiles-definitions>
+	<definition name="main" template="/WEB-INF/views/menu/template.jsp"> 
+        <put-attribute name="header" value="/WEB-INF/views/menu/top.jsp" /> 
+		<!-- <put-attribute name="footer" value="/WEB-INF/views/templates/footer.jsp" />  -->
+    </definition>
+	<definition name="/recipe/list" extends="main"> 
+        <put-attribute name="title" value="게시판 목록" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/recipe/list.jsp" /> 
+    </definition>   
+    <definition name="/recipe/create" extends="main"> 
+        <put-attribute name="title" value="게시판 등록" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/recipe/createForm.jsp" /> 
+    </definition>
+    <definition name="/recipe/delete" extends="main"> 
+        <put-attribute name="title" value="게시판 삭제" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/recipe/deleteForm.jsp" /> 
+    </definition>      
+    <definition name="/recipe/update" extends="main"> 
+        <put-attribute name="title" value="게시판 수정" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/recipe/updateForm.jsp" /> 
+    </definition>
+    <definition name="/recipe/read" extends="main"> 
+        <put-attribute name="title" value="게시판 조회" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/recipe/read.jsp" /> 
+    </definition>
+</tiles-definitions>

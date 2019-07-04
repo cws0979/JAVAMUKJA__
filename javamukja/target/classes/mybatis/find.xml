@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="spring.model.mapper.FindInter">
+	
+	<select id="list2" resultType="FindDTO">
+		SELECT fno, fstr, fcnt, fdate, r 
+		from(
+			SELECT fno, fstr, fcnt, fdate, rownum r
+		 	from(
+		 		SELECT fno, fstr, fcnt, to_char(fdate, 'yyyy-mm-dd') fdate
+				from find
+				order by fcnt desc 
+				)
+			)
+	</select>
+	
+	<select id="list" parameterType="Map" resultType="FindDTO">
+		SELECT fno, fstr, fcnt, fdate, r 
+		from(
+			SELECT fno, fstr, fcnt, fdate, rownum r
+		 	from(
+		 		SELECT fno, fstr, fcnt, to_char(fdate, 'yyyy-mm-dd') fdate
+				from find
+		<where>
+				<choose>
+					<when test="col=='fno'">
+						fno like '%'||#{word}||'%'
+					</when>
+					<when test="col=='fstr'">
+						fstr like '%'||#{word}||'%'
+					</when>
+				</choose>
+			</where>           
+		order by fcnt desc            
+		)
+		)
+<!-- 		<![CDATA[ -->
+<!-- 		where r >= #{sno} and r <= #{eno} -->
+<!-- 		]]>   -->
+	</select>
+	
+	<select id="fstrCheck" parameterType="String" resultType="String">
+		select fno from find
+		where fstr = #{fstr}
+	</select>	
+	
+	<select id="check" parameterType="String" resultType="int">
+		select count(*) from find
+		where fstr = #{fstr}
+	</select>	
+
+	<insert id="create" parameterType="String" >
+		insert into find(fno, fstr, fcnt, fdate)
+		values((select nvl(max(fno),0) +1 from find), #{fstr}, 1, sysdate)
+	</insert>
+	
+	<update id="upFcnt" parameterType="int">
+		update find     
+		set fcnt = fcnt +1     
+		where fno = #{fno}  
+	</update>
+	
+	<select id="rank"  resultType="FindDTO">
+		<![CDATA[
+ 		select fstr
+ 		from(
+  			select fstr from find
+			order by fcnt desc)
+			where rownum <= 10
+ 			]]>
+	</select>
+	
+	<select id="read" parameterType="int" resultType="FindDTO">
+	select fno, fstr, fcnt
+	from find                             
+	where fno = #{fno}                              
+	</select>
+	
+	<update id="update" parameterType="FindDTO">   
+	update find   
+	set
+	fstr = #{fstr},    
+	fcnt = #{fcnt}   
+	where fno = #{fno}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+	delete from find 
+ 	where fno = #{fno}
+	</delete>
+	
+	<delete id="deleteAll">
+	delete from find 
+	</delete>
+	
+<select id="total" parameterType="Map" resultType="int">
+	select count(*) from find
+		<where>
+				<choose>
+					<when test="col=='fno'">
+						fno like '%'||#{word}||'%'
+					</when>
+					<when test="col=='fstr'">
+						fstr like '%'||#{word}||'%'
+					</when>
+				</choose>
+			</where>          
+	
+	</select>	
+	
+</mapper>

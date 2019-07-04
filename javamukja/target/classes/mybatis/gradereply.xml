@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+ 
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="spring.model.mapper.GradeReplyInter">
+	
+	 <select id="gradecount" parameterType="int" resultType="int">
+     SELECT count(*) FROM gradereply
+     WHERE gno = #{gno}
+    </select>
+
+	<insert id="create" parameterType="GradeReplyDTO">
+		<selectKey keyProperty="grno" resultType="int" order="BEFORE">
+			select nvl(max(grno),0)+1 from gradereply
+		</selectKey>
+		insert into gradereply(grno, content, rdate, id, gno)
+		values(#{grno}, #{content}, sysdate, #{id}, #{gno})
+	</insert>
+
+	<select id="read" parameterType="int" resultType="GradeReplyDTO">
+		select * from gradereply
+		where grno = #{grno}
+	</select>
+
+	<update id="update" parameterType="GradeReplyDTO">
+		update gradereply
+		set content = #{content}
+		where grno = #{grno}
+	</update>
+
+	<delete id="delete" parameterType="int">
+		delete from gradereply
+		where grno = #{grno}
+	</delete>
+	
+	<delete id="gdelete" parameterType="int">
+		delete from gradereply
+		where gno = #{gno}
+	</delete>
+	
+	<select id="list" parameterType="Map" resultType="GradeReplyDTO">
+		select grno, content, to_char(rdate,'yyyy-mm-dd') rdate, id,
+		gno, r
+		FROM(
+			select grno, content, rdate, id, gno, rownum r
+			FROM(
+				select grno, content, rdate, id, gno
+				from gradereply
+				where gno = #{gno}
+				order by grno DESC
+				)
+			)		
+			<![CDATA[
+			WHERE r >= #{sno} and r <= #{eno}
+			]]>
+	</select>
+
+	<select id="total" resultType="int" parameterType="int">
+		select count(*) from gradereply
+		where gno = #{gno}
+	</select>
+
+
+
+</mapper>

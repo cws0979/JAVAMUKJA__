@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="spring.model.mapper.MemberInter">
+
+<insert id="create" parameterType="MemberDTO">
+INSERT INTO member(id, passwd, mname, nickname, email,
+zipcode, address, fname, grade)
+VALUES(#{id}, #{passwd}, #{mname}, #{nickname}, #{email},
+#{zipcode}, #{address}, #{fname}, 'N')
+</insert>
+<delete id="delete" parameterType="String">
+delete from member
+where id = #{id}
+</delete>
+<select id="duplicateEmail" parameterType="String" resultType="int">
+SELECT COUNT(email)
+FROM member     
+WHERE email = #{email}
+</select>
+<select id="duplicateNick" parameterType="String" resultType="int">
+SELECT COUNT(nickname)
+FROM member     
+WHERE nickname = #{nickname}
+</select>
+<select id="duplicateId" parameterType="String" resultType="int">
+SELECT COUNT(id)
+FROM member     
+WHERE id = #{id}
+</select>
+<select id="getGrade" parameterType="String" resultType="String">
+select grade from member
+where id = #{id}  
+</select>
+<select id="idSearch" parameterType="Map" resultType="String">
+	select id from member
+	where mname= #{mname}   
+	and email= #{email}
+</select>
+<select id="list" parameterType="Map" resultType="MemberDTO">
+SELECT id, mname, nickname, email, zipcode, address, fname, r          
+from(                                       
+    SELECT id, mname, nickname, email, zipcode, address, fname, rownum r      
+    from(                             
+        SELECT id, mname, nickname, email, zipcode, address, fname  
+        FROM member
+        <where>
+        <choose>
+        <when test="col=='mname'">
+        mname like '%'||#{word}||'%'
+        </when>
+        <when test="col=='id'">
+        id like '%'||#{word}||'%'
+        </when>
+        <when test="col=='email'">
+        email like '%'||#{word}||'%'
+        </when>
+        </choose>
+        </where>                                 
+        )
+)
+<![CDATA[
+where r >= #{sno} and r <= #{eno}
+]]>                                                                
+</select>
+<select id="loginCheck" parameterType="Map" resultType="int">
+select count(id)
+from member            
+where id = #{id}
+and passwd = #{passwd}
+</select>
+<select id="pwSearch" parameterType="Map" resultType="String">
+select passwd from member
+where id= #{id}      
+and mname= #{mname}
+</select>
+<select id="read" parameterType="String" resultType="MemberDTO">
+SELECT id, mname, nickname, grade, email, zipcode, address, fname
+FROM member                         
+WHERE id = #{id}
+</select>
+<select id="total" parameterType="Map" resultType="int">
+select count(*) from member
+        <where>
+        <choose>
+        <when test="col=='mname'">
+        mname like '%'||#{word}||'%'
+        </when>
+        <when test="col=='id'">
+        id like '%'||#{word}||'%'
+        </when>
+        <when test="col=='email'">
+        email like '%'||#{word}||'%'
+        </when>
+        </choose>
+        </where>   
+</select>
+<update id="update" parameterType="MemberDTO">
+UPDATE member  
+SET nickname = #{nickname}, 
+	email    = #{email},
+    zipcode  = #{zipcode},
+    address  = #{address}
+WHERE id = #{id}
+</update>
+<update id="updateFile" parameterType="Map">
+update member 
+set fname = #{fname}
+where id = #{id}
+</update>
+<update id="updateGrade" parameterType="Map">
+update member 
+set grade = #{grade}
+where id = #{id}
+</update>
+<update id="updatePw" parameterType="Map">
+update member 
+set passwd = #{passwd}
+where id = #{id}
+</update>
+</mapper>
